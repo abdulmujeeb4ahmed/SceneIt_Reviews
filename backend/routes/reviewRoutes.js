@@ -41,12 +41,18 @@ router.get('/search', async (req, res) => {
       movie: { $regex: movie, $options: 'i' } // Case-insensitive partial match
     });
 
+    // If no reviews are found, return a 404 error with a custom message
+    if (reviews.length === 0) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+
     res.json(reviews);
   } catch (error) {
     console.error('Search error:', error);
     res.status(500).json({ message: 'Error searching reviews', error });
   }
 });
+
 
 // Get a single review by ID
 router.get('/:id', async (req, res) => {
