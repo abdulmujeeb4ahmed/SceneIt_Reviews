@@ -28,6 +28,26 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Search reviews by movie title (case-insensitive partial match)
+router.get('/search', async (req, res) => {
+    try {
+        const { movie } = req.query;
+        
+        if (!movie) {
+            return res.status(400).json({ message: 'Movie title is required' });
+        }
+
+        const reviews = await Review.find({ 
+            movie: { $regex: movie, $options: 'i' } // Case-insensitive partial match
+        });
+        
+        res.json(reviews);
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).json({ message: 'Error searching reviews', error });
+    }
+});
+
 // Get a single review by ID
 router.get('/:id', async (req, res) => {
     try {
