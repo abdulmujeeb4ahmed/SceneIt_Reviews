@@ -43,7 +43,7 @@ router.get('/search', async (req, res) => {
 
     // If no reviews are found, return a 404 error with a custom message
     if (reviews.length === 0) {
-      return res.status(404).json({ message: 'Movie not found' });
+      return res.status(404).json({ error: 'Movie not found' });  // Updated here
     }
 
     res.json(reviews);
