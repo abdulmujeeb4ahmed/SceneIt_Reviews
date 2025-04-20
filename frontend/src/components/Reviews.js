@@ -1,34 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { getAllReviews } from '../axios';
+import { Link } from 'react-router-dom';
 
-const Reviews = () => {
-    const [reviews, setReviews] = useState([]);
+export default function Reviews() {
+  const [reviews, setReviews] = useState([]);
 
-    // Fetch reviews from backend
-    useEffect(() => {
-        axios.get('http://localhost:5001/api/reviews')  // Make sure this is correct
-            .then(response => setReviews(response.data))
-            .catch(error => console.error("Error fetching reviews:", error));
-    }, []);
+  useEffect(() => {
+    getAllReviews()
+      .then(setReviews)
+      .catch(err => console.error('Error fetching reviews:', err));
+  }, []);
 
-    return (
-        <div>
-            <h2>Reviews</h2>
-            {reviews.length > 0 ? (
-                reviews.map(review => (
-                    <div key={review._id} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
-                        <h4>Movie ID: {review.movie_id}</h4>
-                        <p><strong>Rating:</strong> {review.rating} ⭐</p>
-                        <p><strong>Review:</strong> {review.review_text}</p>
-                        <p><strong>Upvotes:</strong> {review.votes.upvotes} 👍 | <strong>Downvotes:</strong> {review.votes.downvotes} 👎</p>
-                        <p><strong>Created At:</strong> {new Date(review.created_at).toLocaleString()}</p>
-                    </div>
-                ))
-            ) : (
-                <p>No reviews available.</p>
-            )}
+  return (
+    <div style={container}>
+      <h1>All Reviews</h1>
+      {reviews.length ? reviews.map(r => (
+        <div key={r._id} style={card}>
+          <Link to={`/movie/${r.movie}`} style={movieLink}>
+            Movie: {r.movie}
+          </Link>
+          <p><strong>{r.username}</strong>: {r.content}</p>
         </div>
-    );
-};
+      )) : (
+        <p>No reviews have been posted yet.</p>
+      )}
+    </div>
+  );
+}
 
-export default Reviews;
+const container = {
+  padding: '2rem', maxWidth: 800, margin: 'auto', fontFamily: 'sans-serif'
+};
+const card = {
+  border: '1px solid #ddd', borderRadius: 4,
+  padding: '1rem', marginBottom: '1rem', background: '#fafafa'
+};
+const movieLink = {
+  fontWeight: 'bold', textDecoration: 'none', color: '#333'
+};

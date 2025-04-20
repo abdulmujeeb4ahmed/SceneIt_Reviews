@@ -4,9 +4,8 @@ const Thumb = require('../models/Thumb');
 const Review = require('../models/Review');
 const { authenticateUser } = require('../middleware/auth');
 
-// POST: Add or toggle thumbs-up/thumbs-down
 router.post('/:reviewId', authenticateUser, async (req, res) => {
-    const { type } = req.body; // "up" or "down"
+    const { type } = req.body;
     const { reviewId } = req.params;
     const userId = req.user.id;
 
@@ -15,7 +14,6 @@ router.post('/:reviewId', authenticateUser, async (req, res) => {
     }
 
     try {
-        // Check if user has already reacted
         let thumb = await Thumb.findOne({ user: userId, review: reviewId });
 
         if (thumb) {
@@ -28,7 +26,6 @@ router.post('/:reviewId', authenticateUser, async (req, res) => {
             return res.json({ message: "Reaction updated", thumb });
         }
 
-        // Create new reaction
         const newThumb = new Thumb({ user: userId, review: reviewId, type });
         await newThumb.save();
         await Review.findByIdAndUpdate(reviewId, { $push: { thumbs: newThumb._id } });
@@ -39,7 +36,6 @@ router.post('/:reviewId', authenticateUser, async (req, res) => {
     }
 });
 
-// GET: Count thumbs-up and thumbs-down for a review
 router.get('/:reviewId/count', async (req, res) => {
     try {
         const { reviewId } = req.params;

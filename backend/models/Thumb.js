@@ -6,7 +6,6 @@ const thumbSchema = new mongoose.Schema({
   type: { type: String, enum: ['up', 'down'], required: true }
 }, { timestamps: true });
 
-// Prevent users from reacting multiple times to the same review
 thumbSchema.index({ user: 1, review: 1 }, { unique: true });
 
 module.exports = mongoose.model('Thumb', thumbSchema);
