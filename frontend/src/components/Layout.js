@@ -4,34 +4,62 @@ import { AuthContext } from '../AuthContext';
 
 const Layout = ({ children }) => {
   const { user, logout } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const nav = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    await logout();
+    nav('/login');
   };
 
   return (
-    <div>
-      <nav style={{ padding: '10px', background: '#eee', marginBottom: '20px' }}>
+    <>
+      <nav style={styles.navbar}>
+        <Link to="/"       style={styles.link}>Home</Link>
+        <Link to="/search" style={styles.link}>Search</Link>
+        <Link to="/myreviews" style={styles.link}>My Reviews</Link>
         {user ? (
-          <>
-            <Link to="/reviews" style={{ marginRight: '10px' }}>Reviews</Link>
-            <button onClick={handleLogout}>Logout</button>
-          </>
+          <button onClick={handleLogout} style={styles.button}>
+            Logout
+          </button>
         ) : (
           <>
-            <Link to="/login" style={{ marginRight: '10px' }}>Login</Link>
-            <Link to="/signup">Sign Up</Link>
+            <Link to="/login"  style={styles.link}>Login</Link>
+            <Link to="/signup" style={styles.link}>Sign Up</Link>
           </>
         )}
       </nav>
-
-      <main style={{ padding: '0 20px' }}>
-        {children}
-      </main>
-    </div>
+      <main style={styles.main}>{children}</main>
+    </>
   );
+};
+
+const styles = {
+  navbar: {
+    backgroundColor: '#eef2ff',
+    borderBottom: '1px solid #ccc',
+    padding: '10px 20px',
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '30px',
+    position: 'sticky',
+    top: 0,
+    zIndex: 100
+  },
+  link: {
+    textDecoration: 'none',
+    color: '#333',
+    fontWeight: 'bold'
+  },
+  button: {
+    background: 'none',
+    border: 'none',
+    color: '#333',
+    fontWeight: 'bold',
+    cursor: 'pointer'
+  },
+  main: {
+    padding: '20px'
+  }
 };
 
 export default Layout;

@@ -1,49 +1,32 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import Reviews from './components/Reviews';
-import HomePage from './components/Homepage'; // Add HomePage import
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-const App = () => {
+import { AuthProvider } from './AuthContext';
+import Layout          from './components/Layout';
+import HomePage        from './components/HomePage';
+import Login           from './components/Login';
+import Signup          from './components/Signup';
+import Reviews         from './components/Reviews';
+import SearchPage      from './components/SearchPage';
+import MovieDetail     from './components/MovieDetail';
+import MyReviews       from './components/MyReviews';
+
+export default function App() {
   return (
-    <Router>
-      <div>
-        <nav style={styles.navbar}>
-          <Link to="/" style={styles.link}>Home</Link> {/* Add Home link */}
-          <Link to="/login" style={styles.link}>Login</Link>
-          <Link to="/signup" style={styles.link}>Signup</Link>
-          <Link to="/reviews" style={styles.link}>Reviews</Link>
-        </nav>
-        <Routes>
-          <Route path="/" element={<HomePage />} /> {/* HomePage route */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/reviews" element={<Reviews />} />
-        </Routes>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Layout>
+          <Routes>
+            <Route path="/"             element={<HomePage />} />
+            <Route path="/login"        element={<Login />}    />
+            <Route path="/signup"       element={<Signup />}   />
+            <Route path="/reviews"      element={<Reviews />}  />
+            <Route path="/search"       element={<SearchPage />} />
+            <Route path="/movie/:imdbID" element={<MovieDetail />} />
+            <Route path="/myreviews"    element={<MyReviews />} />
+          </Routes>
+        </Layout>
+      </Router>
+    </AuthProvider>
   );
-};
-
-const styles = {
-  navbar: {
-    backgroundColor: '#e0e0e0',
-    padding: '12px 20px',
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '30px',
-    position: 'sticky',
-    top: 0,
-    zIndex: 1000,
-    borderBottom: '1px solid #ccc',
-  },
-  link: {
-    textDecoration: 'none',
-    color: '#333',
-    fontSize: '16px',
-    fontWeight: 'bold',
-  }
-};
-
-export default App;
+}

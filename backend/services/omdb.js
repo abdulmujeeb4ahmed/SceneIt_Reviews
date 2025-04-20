@@ -1,23 +1,28 @@
 const axios = require('axios');
 const API_KEY = process.env.OMDB_API_KEY;
-const BASE_URL = 'http://www.omdbapi.com/';
 
-async function fetchMovieById(imdbID) {
-  const url = `${BASE_URL}?i=${imdbID}&apikey=${API_KEY}`;
-  const { data } = await axios.get(url);
-  if (data.Response === 'False') {
-    throw new Error(data.Error);
-  }
-  return data;
+if (!API_KEY) {
+  console.error('⚠️  No OMDB_API_KEY in .env');
 }
 
 async function searchMovies(title, page = 1) {
-  const url = `${BASE_URL}?s=${encodeURIComponent(title)}&page=${page}&apikey=${API_KEY}`;
-  const { data } = await axios.get(url);
+  const { data } = await axios.get('http://www.omdbapi.com/', {
+    params: { s: title, page, apikey: API_KEY }
+  });
   if (data.Response === 'False') {
     throw new Error(data.Error);
   }
   return data.Search;
 }
 
-module.exports = { fetchMovieById, searchMovies };
+async function fetchMovieById(imdbID) {
+  const { data } = await axios.get('http://www.omdbapi.com/', {
+    params: { i: imdbID, apikey: API_KEY, plot: 'full' }
+  });
+  if (data.Response === 'False') {
+    throw new Error(data.Error);
+  }
+  return data;
+}
+
+module.exports = { searchMovies, fetchMovieById };

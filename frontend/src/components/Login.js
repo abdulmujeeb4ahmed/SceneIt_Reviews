@@ -1,82 +1,65 @@
-import React, { useState } from 'react';
-import axios from '../axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../AuthContext';
 
-const Login = () => {
+export default function Login() {
+  const { user, login } = useContext(AuthContext);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [err, setErr] = useState('');
+  const nav = useNavigate();
 
-  const handleLogin = async (e) => {
+  useEffect(() => {
+    if (user) nav('/');
+  }, [user, nav]);
+
+  const handleSubmit = async e => {
     e.preventDefault();
+    setErr('');
     try {
-      await axios.post('/auth/login', { username, password });
-      navigate('/reviews');
-    } catch (err) {
-      setError('Invalid username or password');
+      await login({ username, password });
+      nav('/');
+    } catch {
+      setErr('Invalid credentials');
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.heading}>Login</h2>
-      {error && <p style={styles.error}>{error}</p>}
-      <form onSubmit={handleLogin} style={styles.form}>
+    <div style={container}>
+      <h2>Login</h2>
+      {err && <p style={error}>{err}</p>}
+      <form onSubmit={handleSubmit} style={form}>
         <input
-          style={styles.input}
           placeholder="Username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={e => setUsername(e.target.value)}
+          style={input}
         />
         <input
-          style={styles.input}
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={e => setPassword(e.target.value)}
+          style={input}
         />
-        <button style={styles.button} type="submit">Login</button>
+        <button type="submit" style={button}>Log In</button>
       </form>
+      <p style={{ marginTop: 10 }}>
+        Need an account? <Link to="/signup">Sign Up</Link>
+      </p>
     </div>
   );
-};
+}
 
-const styles = {
-  container: {
-    maxWidth: '400px',
-    margin: '60px auto',
-    padding: '30px',
-    border: '1px solid #ddd',
-    borderRadius: '8px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.05)',
-    textAlign: 'center'
-  },
-  heading: {
-    marginBottom: '20px'
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px'
-  },
-  input: {
-    padding: '10px',
-    fontSize: '16px'
-  },
-  button: {
-    padding: '10px',
-    fontSize: '16px',
-    backgroundColor: '#1976d2',
-    color: 'white',
-    border: 'none',
-    cursor: 'pointer',
-    borderRadius: '4px'
-  },
-  error: {
-    color: 'red',
-    marginBottom: '10px'
-  }
+const container = {
+  maxWidth: 400, margin: '60px auto', padding: 30,
+  border: '1px solid #ddd', borderRadius: 8
 };
-
-export default Login;
+const form = { display: 'flex', flexDirection: 'column', gap: 15 };
+const input = { padding: 10, fontSize: 16 };
+const button = {
+  padding: 10, fontSize: 16,
+  backgroundColor: '#1e88e5', color: 'white',
+  border: 'none', cursor: 'pointer', borderRadius: 4
+};
+const error = { color: 'red', marginBottom: 10 };

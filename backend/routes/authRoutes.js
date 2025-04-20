@@ -1,51 +1,62 @@
 const express = require('express');
-const md5 = require('md5');
-const User = require('../models/User');
+const md5     = require('md5');
+const jwt     = require('jsonwebtoken');
+const User    = require('../models/User');
+const { authenticateUser } = require('../middleware/auth');
+const router  = express.Router();
 
-const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || 'yourSuperSecretKey';
+const JWT_EXPIRES = '2h';
 
-// Signup
 router.post('/signup', async (req, res) => {
   const { username, password } = req.body;
-
-  try {
-    const existingUser = await User.findOne({ username });
-    if (existingUser) return res.status(400).json({ message: 'User already exists' });
-
-    const newUser = new User({ username, password: md5(password) });
-    await newUser.save();
-
-    req.session.user = newUser;
-    res.status(201).json({ message: 'Signup successful', user: newUser.username });
-  } catch (err) {
-    res.status(500).json({ message: 'Signup failed', error: err.message });
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username & password required' });
   }
+  if (await User.findOne({ username })) {
+    return res.status(400).json({ message: 'User already exists' });
+  }
+  const newUser = await new User({
+    username,
+    password: md5(password)
+  }).save();
+
+  const token = jwt.sign(
+    { id: newUser._id, username: newUser.username },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES }
+  );
+  res.status(201).json({
+    user: { id: newUser._id, username: newUser.username },
+    token
+  });
 });
 
-// Login
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-
-  const user = await User.findOne({ username, password: md5(password) });
-  if (!user) return res.status(401).json({ message: 'Invalid credentials' });
-
-  req.session.user = user;
-  res.json({ message: 'Login successful', user: user.username });
-});
-
-// Check session
-router.get('/me', (req, res) => {
-  if (req.session.user) {
-    res.json({ user: req.session.user.username });
-  } else {
-    res.status(401).json({ message: 'Not logged in' });
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username & password required' });
   }
+  const user = await User.findOne({
+    username,
+    password: md5(password)
+  });
+  if (!user) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+  const token = jwt.sign(
+    { id: user._id, username: user.username },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES }
+  );
+  res.json({
+    user: { id: user._id, username: user.username },
+    token
+  });
 });
 
-// Logout
-router.post('/logout', (req, res) => {
-  req.session.destroy();
-  res.json({ message: 'Logged out' });
+router.get('/me', authenticateUser, (req, res) => {
+  res.json({ user: { id: req.user.id, username: req.user.username } });
 });
 
 module.exports = router;
