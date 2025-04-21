@@ -28,33 +28,25 @@ router.get('/user', authenticateUser, async (req, res) => {
 
 router.put('/:id', authenticateUser, async (req, res) => {
   const review = await Review.findById(req.params.id);
-  if (review.username !== req.user.username) return res.status(403).json({ message: 'Not authorized' });
-  review.content = req.body.content || review.content;
+  if (!review) {
+    return res.status(404).json({ message: 'Review not found' });
+  }
+  if (review.username !== req.user.username) {
+    return res.status(403).json({ message: 'Not authorized' });
+  }
+  review.content = req.body.content ?? review.content;
   await review.save();
   res.json(review);
 });
 
 router.delete('/:id', authenticateUser, async (req, res) => {
   const review = await Review.findById(req.params.id);
-  if (review.username !== req.user.username) return res.status(403).json({ message: 'Not authorized' });
-  await Review.findByIdAndDelete(req.params.id);
-  res.json({ message: 'Deleted' });
-main
-});
-
-router.put('/:id', authenticateUser, async (req, res) => {
-  const review = await Review.findById(req.params.id);
-  if (!review) return res.status(404).json({ message: 'Review not found' });
-  if (review.username !== req.user.username) return res.status(403).json({ message: 'Not authorized' });
-  review.content = req.body.content ?? review.content;
-  await review.save();
-  res.json({ message: 'Review updated', review });
-});
-
-router.delete('/:id', authenticateUser, async (req, res) => {
-  const review = await Review.findById(req.params.id);
-  if (!review) return res.status(404).json({ message: 'Review not found' });
-  if (review.username !== req.user.username) return res.status(403).json({ message: 'Not authorized' });
+  if (!review) {
+    return res.status(404).json({ message: 'Review not found' });
+  }
+  if (review.username !== req.user.username) {
+    return res.status(403).json({ message: 'Not authorized' });
+  }
   await Review.findByIdAndDelete(req.params.id);
   res.json({ message: 'Review deleted' });
 });

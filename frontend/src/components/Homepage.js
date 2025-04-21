@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../AuthContext';
+import React, { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AuthContext } from '../AuthContext'
 
 export default function HomePage() {
-  const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const { user } = useContext(AuthContext)
+  const navigate = useNavigate()
 
   return (
     <div style={styles.container}>
@@ -18,22 +18,35 @@ export default function HomePage() {
           Welcome to<br />SceneIt Reviews!
         </h1>
         <p style={styles.subtitle}>
-          Click below to either log in or view other users' reviews
+          {user
+            ? 'Click below to browse all reviews'
+            : 'Click below to either sign up or log in'}
         </p>
-        <div style={styles.buttonContainer}>
-          <button
-            style={styles.primaryButton}
-            onClick={() => navigate('/signup')}
-          >
-            Join Now
-          </button>
-          <button
-            style={styles.secondaryButton}
-            onClick={() => navigate('/login')}
-          >
-            Login
-          </button>
-        </div>
+        {user ? (
+          <div style={styles.buttonContainer}>
+            <button
+              style={styles.primaryButton}
+              onClick={() => navigate('/search')}
+            >
+              Browse Reviews
+            </button>
+          </div>
+        ) : (
+          <div style={styles.buttonContainer}>
+            <button
+              style={styles.primaryButton}
+              onClick={() => navigate('/signup')}
+            >
+              Join Now
+            </button>
+            <button
+              style={styles.secondaryButton}
+              onClick={() => navigate('/login')}
+            >
+              Login
+            </button>
+          </div>
+        )}
         <div style={styles.indicators}>
           {[0, 1, 2, 3].map(i => (
             <span
@@ -61,7 +74,7 @@ export default function HomePage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 const styles = {
@@ -159,4 +172,4 @@ const styles = {
     objectFit: 'cover',
     objectPosition: 'center bottom'
   }
-};
+}
