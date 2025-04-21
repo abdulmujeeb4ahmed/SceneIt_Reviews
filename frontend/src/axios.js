@@ -13,6 +13,8 @@ instance.interceptors.request.use(config => {
 
 export function searchMovies(title, page = 1) {
   return instance.get('/omdb/search', { params: { title, page } }).then(r => r.data)
+  return instance.get('/omdb/search', { params: { title, page } }).then(r => r.data);
+main
 }
 
 export function fetchMovieById(imdbID) {
@@ -25,6 +27,10 @@ export function getReviewsByMovie(imdbID) {
 
 export function getAllReviews() {
   return instance.get('/reviews').then(r => r.data)
+
+export function submitReview(movie, content) {
+  return instance.post('/reviews', { movie, content }).then(r => r.data);
+main
 }
 
 export function getMyReviews() {
@@ -52,3 +58,17 @@ export function getThumbCount(reviewId) {
 }
 
 export default instance
+export function updateReview(id, content) {
+  return instance.put(`/reviews/${id}`, { content }).then(r => r.data);
+}
+
+export function deleteReview(id) {
+  return instance.delete(`/reviews/${id}`).then(r => r.data);
+}
+
+export function getAllReviews() {
+  return instance.get('/reviews').then(r => r.data);
+}
+
+export default instance;
+main
