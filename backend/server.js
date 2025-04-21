@@ -13,6 +13,9 @@ app.use(cors({
   credentials: false
 }));
 
+const Movie       = require('./models/Movie');
+const { searchMovies, fetchMovieById } = require('./services/omdb');
+
 async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
@@ -29,8 +32,6 @@ async function connectDB() {
 app.use('/api/auth',    require('./routes/authRoutes'));
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 
-const { searchMovies, fetchMovieById } = require('./services/omdb');
-
 app.get('/api/omdb/search', async (req, res) => {
   const { title, page } = req.query;
   if (!title) return res.status(400).json({ error: 'title is required' });
@@ -44,8 +45,15 @@ app.get('/api/omdb/search', async (req, res) => {
 
 app.get('/api/omdb/movie/:imdbID', async (req, res) => {
   try {
-    const movie = await fetchMovieById(req.params.imdbID);
-    res.json(movie);
+    const movieData = await fetchMovieById(req.params.imdbID);
+
+    await Movie.findOneAndUpdate(
+      { imdbID: movieData.imdbID },
+      { $set: movieData },
+      { upsert: true, new: true }
+    );
+
+    res.json(movieData);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
