@@ -1,7 +1,7 @@
-const express     = require('express');
-const mongoose    = require('mongoose');
-const dotenv      = require('dotenv');
-const cors        = require('cors');
+const express  = require('express');
+const mongoose = require('mongoose');
+const dotenv   = require('dotenv');
+const cors     = require('cors');
 
 dotenv.config();
 const app = express();
@@ -13,7 +13,7 @@ app.use(cors({
   credentials: false
 }));
 
-const Movie       = require('./models/Movie');
+const Movie = require('./models/Movie');
 const { searchMovies, fetchMovieById } = require('./services/omdb');
 
 async function connectDB() {
@@ -24,7 +24,7 @@ async function connectDB() {
     });
     console.log('✅ MongoDB connected');
   } catch (err) {
-    console.error('MongoDB error:', err);
+    console.error('MongoDB connection error:', err);
     process.exit(1);
   }
 }
@@ -45,16 +45,25 @@ app.get('/api/omdb/search', async (req, res) => {
 
 app.get('/api/omdb/movie/:imdbID', async (req, res) => {
   try {
-    const movieData = await fetchMovieById(req.params.imdbID);
+    const { imdbID } = req.params;
 
-    await Movie.findOneAndUpdate(
-      { imdbID: movieData.imdbID },
-      { $set: movieData },
-      { upsert: true, new: true }
-    );
+    const cached = await Movie.findOne({ imdbID }).lean();
+    if (cached) {
+      return res.json(cached);
+    }
+
+    const movieData = await fetchMovieById(imdbID);
 
     res.json(movieData);
+
+    Movie.findOneAndUpdate(
+      { imdbID },
+      { $set: movieData },
+      { upsert: true }
+    ).exec();
+
   } catch (err) {
+    console.error('Error in /api/omdb/movie/:imdbID:', err);
     res.status(500).json({ error: err.message });
   }
 });
