@@ -1,35 +1,39 @@
-import React, { useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../AuthContext';
+import React, { useContext } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { AuthContext } from '../AuthContext'
 
-const Layout = ({ children }) => {
-  const { user, logout } = useContext(AuthContext);
-  const nav = useNavigate();
+export default function Layout({ children }) {
+  const { user, logout } = useContext(AuthContext)
+  const navigate = useNavigate()
 
   const handleLogout = async () => {
-    await logout();
-    nav('/login');
-  };
+    await logout()
+    navigate('/login')
+  }
 
   return (
     <>
       <nav style={styles.navbar}>
         <Link to="/" style={styles.link}>Home</Link>
         <Link to="/search" style={styles.link}>Search</Link>
-        <Link to="/myreviews" style={styles.link}>My Reviews</Link>
-        {user && (
-          <button
-            onClick={handleLogout}
-            style={{ ...styles.link, ...styles.logout }}
-          >
-            Logout
-          </button>
+        {user ? (
+          <>
+            <Link to="/myreviews" style={styles.link}>My Reviews</Link>
+            <button onClick={handleLogout} style={{ ...styles.link, ...styles.logout }}>
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/signup" style={styles.link}>Sign Up</Link>
+            <Link to="/login" style={styles.link}>Login</Link>
+          </>
         )}
       </nav>
       <main style={styles.main}>{children}</main>
     </>
-  );
-};
+  )
+}
 
 const styles = {
   navbar: {
@@ -56,12 +60,9 @@ const styles = {
   },
   logout: {
     backgroundColor: '#ef4444',
-    color: 'white',
-    transition: 'background-color 0.2s ease'
+    color: 'white'
   },
   main: {
     padding: '20px'
   }
-};
-
-export default Layout;
+}
