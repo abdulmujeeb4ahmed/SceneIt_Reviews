@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useContext } from 'react'
-import { useParams, Link } from 'react-router-dom'
+// ✅ FINAL MovieDetail.js with vibrant styling, thumb reactions, user-only controls
+import React, { useEffect, useState, useContext } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import {
   fetchMovieById,
   getReviewsByMovie,
@@ -8,95 +9,111 @@ import {
   deleteReview,
   submitThumb,
   getThumbCount
-} from '../axios'
-import { AuthContext } from '../AuthContext'
+} from '../axios';
+import { AuthContext } from '../AuthContext';
 
 export default function MovieDetail() {
-  const { imdbID } = useParams()
-  const { user } = useContext(AuthContext)
-  const [movie, setMovie] = useState(null)
-  const [reviews, setReviews] = useState([])
-  const [content, setContent] = useState('')
-  const [editId, setEditId] = useState(null)
-  const [editContent, setEditContent] = useState('')
-  const [counts, setCounts] = useState({})
+  const { imdbID } = useParams();
+  const { user } = useContext(AuthContext);
+  const [movie, setMovie] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [content, setContent] = useState('');
+  const [editId, setEditId] = useState(null);
+  const [editContent, setEditContent] = useState('');
+  const [counts, setCounts] = useState({});
 
   useEffect(() => {
-    fetchMovieById(imdbID).then(setMovie)
+    fetchMovieById(imdbID).then(setMovie);
     getReviewsByMovie(imdbID).then(revs => {
-      setReviews(revs)
+      setReviews(revs);
       revs.forEach(r =>
         getThumbCount(r._id).then(c =>
           setCounts(prev => ({ ...prev, [r._id]: c }))
         )
-      )
-    })
-  }, [imdbID])
+      );
+    });
+  }, [imdbID]);
 
   const handleSubmit = async e => {
-    e.preventDefault()
-    if (!content.trim()) return
-    const newRev = await submitReview(imdbID, content)
-    setReviews(prev => [...prev, newRev])
-    setContent('')
+    e.preventDefault();
+    if (!content.trim()) return;
+    const newRev = await submitReview(imdbID, content);
+    setReviews(prev => [...prev, newRev]);
+    setContent('');
     getThumbCount(newRev._id).then(c =>
       setCounts(prev => ({ ...prev, [newRev._id]: c }))
-    )
-  }
+    );
+  };
 
   const startEdit = (id, txt) => {
-    setEditId(id)
-    setEditContent(txt)
-  }
+    setEditId(id);
+    setEditContent(txt);
+  };
 
   const handleSave = async id => {
-    if (!editContent.trim()) return
-    const updated = await updateReview(id, editContent)
-    setReviews(rs => rs.map(r => (r._id === id ? updated : r)))
-    setEditId(null)
-    setEditContent('')
-  }
+    if (!editContent.trim()) return;
+    const updated = await updateReview(id, editContent);
+    setReviews(rs => rs.map(r => (r._id === id ? updated : r)));
+    setEditId(null);
+    setEditContent('');
+  };
 
   const handleDelete = async id => {
-    await deleteReview(id)
-    setReviews(rs => rs.filter(r => r._id !== id))
-  }
+    await deleteReview(id);
+    setReviews(rs => rs.filter(r => r._id !== id));
+  };
 
   const handleThumb = async (id, type) => {
     if (!user) {
-      alert('Please log in to react')
-      return
+      alert('Please log in to react');
+      return;
     }
-    await submitThumb(id, type)
-    const c = await getThumbCount(id)
-    setCounts(prev => ({ ...prev, [id]: c }))
-  }
+    await submitThumb(id, type);
+    const c = await getThumbCount(id);
+    setCounts(prev => ({ ...prev, [id]: c }));
+  };
 
-  if (!movie) return null
+  if (!movie) return null;
 
   return (
-    <div style={{ padding: '2rem', maxWidth: 800, margin: 'auto' }}>
-      <h1>{movie.Title} ({movie.Year})</h1>
+    <div style={{
+      padding: '2rem',
+      maxWidth: 800,
+      margin: 'auto',
+      background: 'linear-gradient(145deg, #fef9f4, #e8f0ff)',
+      borderRadius: '16px',
+      boxShadow: '0 8px 30px rgba(0, 0, 0, 0.1)',
+      minHeight: '100vh'
+    }}>
+      <h1 style={{ color: '#1e3a8a' }}>{movie.Title} ({movie.Year})</h1>
       <img
         src={movie.Poster !== 'N/A' ? movie.Poster : '/placeholder.png'}
         alt={movie.Title}
-        style={{ width: '100%', maxWidth: 300, marginBottom: '1rem' }}
+        style={{ width: '100%', maxWidth: 300, marginBottom: '1rem', borderRadius: '12px', boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}
       />
-      <p>{movie.Plot}</p>
-      <h2>Reviews</h2>
+      <p style={{ fontSize: '1.1rem', color: '#374151' }}>{movie.Plot}</p>
+
+      <h2 style={{ marginTop: '2rem', color: '#111827' }}>Reviews</h2>
       {reviews.length ? reviews.map(r => (
         <div
           key={r._id}
-          style={{ borderBottom: '1px solid #ddd', padding: '1rem 0' }}
+          style={{
+            borderBottom: '1px solid #ccc',
+            padding: '1rem 0',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '10px',
+            marginBottom: '1.2rem',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+          }}
         >
-          <strong>{r.username}</strong>
+          <strong style={{ color: '#2563eb' }}>{r.username}</strong>
           {editId === r._id ? (
             <>
               <textarea
                 rows={3}
                 value={editContent}
                 onChange={e => setEditContent(e.target.value)}
-                style={{ width: '100%', margin: '0.5rem 0' }}
+                style={{ width: '100%', margin: '0.5rem 0', borderRadius: '8px', padding: '0.5rem' }}
               />
               <button onClick={() => handleSave(r._id)}>Save</button>
               <button onClick={() => { setEditId(null); setEditContent('') }}>Cancel</button>
@@ -104,13 +121,15 @@ export default function MovieDetail() {
           ) : (
             <p style={{ margin: '0.5rem 0' }}>{r.content}</p>
           )}
+
           {user?.username === r.username && editId !== r._id && (
             <>
               <button onClick={() => startEdit(r._id, r.content)}>Edit</button>
               <button onClick={() => handleDelete(r._id)}>Delete</button>
             </>
           )}
-          {user ? (
+
+          {user && user.username !== r.username ? (
             <div style={{ marginTop: '0.5rem' }}>
               <button onClick={() => handleThumb(r._id, 'up')}>
                 👍 {counts[r._id]?.thumbsUp || 0}
@@ -119,24 +138,25 @@ export default function MovieDetail() {
                 👎 {counts[r._id]?.thumbsDown || 0}
               </button>
             </div>
-          ) : (
+          ) : !user ? (
             <p style={{ color: '#555', marginTop: '0.5rem' }}>
               <Link to="/login">Log in</Link> to like or dislike reviews
             </p>
-          )}
+          ) : null}
         </div>
       )) : (
         <p>No reviews yet.</p>
       )}
+
       {user && (
         <>
-          <h3>Write a Review</h3>
+          <h3 style={{ color: '#1e40af' }}>Write a Review</h3>
           <form onSubmit={handleSubmit} style={{ marginTop: '1rem' }}>
             <textarea
               rows={4}
               value={content}
               onChange={e => setContent(e.target.value)}
-              style={{ width: '100%', marginBottom: '0.5rem' }}
+              style={{ width: '100%', marginBottom: '0.5rem', borderRadius: '6px', padding: '0.5rem' }}
               placeholder="Your thoughts…"
             />
             <button type="submit">Submit Review</button>
@@ -144,5 +164,5 @@ export default function MovieDetail() {
         </>
       )}
     </div>
-  )
+  );
 }

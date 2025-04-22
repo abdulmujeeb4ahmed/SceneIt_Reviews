@@ -28,7 +28,7 @@ export default function HomePage() {
               style={styles.primaryButton}
               onClick={() => navigate('/search')}
             >
-              Browse Reviews
+              Browse Movies
             </button>
           </div>
         ) : (

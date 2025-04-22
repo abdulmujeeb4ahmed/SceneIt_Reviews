@@ -68,7 +68,7 @@ export default function MyReviews() {
     <div style={{ padding:'2rem', maxWidth:800, margin:'auto' }}>
       <h1>My Reviews</h1>
       {reviews.length > 0 ? reviews.map(r => (
-        <div key={r._id} style={{ border:'1px solid #ddd', padding:'1rem', marginBottom:'1rem' }}>
+        <div key={r._id} className="review-box">
           <Link to={`/movie/${r.movie}`} style={{ textDecoration:'none', color:'#4B0082' }}>
             <strong>Movie: {titles[r._id] || 'Loading…'}</strong>
           </Link>

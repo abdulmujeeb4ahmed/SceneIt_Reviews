@@ -14,18 +14,16 @@ const Layout = ({ children }) => {
   return (
     <>
       <nav style={styles.navbar}>
-        <Link to="/"       style={styles.link}>Home</Link>
+        <Link to="/" style={styles.link}>Home</Link>
         <Link to="/search" style={styles.link}>Search</Link>
         <Link to="/myreviews" style={styles.link}>My Reviews</Link>
-        {user ? (
-          <button onClick={handleLogout} style={styles.button}>
+        {user && (
+          <button
+            onClick={handleLogout}
+            style={{ ...styles.link, ...styles.logout }}
+          >
             Logout
           </button>
-        ) : (
-          <>
-            <Link to="/login"  style={styles.link}>Login</Link>
-            <Link to="/signup" style={styles.link}>Sign Up</Link>
-          </>
         )}
       </nav>
       <main style={styles.main}>{children}</main>
@@ -35,9 +33,9 @@ const Layout = ({ children }) => {
 
 const styles = {
   navbar: {
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#f1f5f9',
     borderBottom: '1px solid #ccc',
-    padding: '10px 20px',
+    padding: '12px 24px',
     display: 'flex',
     justifyContent: 'center',
     gap: '30px',
@@ -47,15 +45,19 @@ const styles = {
   },
   link: {
     textDecoration: 'none',
-    color: '#333',
-    fontWeight: 'bold'
-  },
-  button: {
+    color: '#1f2937',
+    fontWeight: 'bold',
+    fontSize: '1rem',
     background: 'none',
     border: 'none',
-    color: '#333',
-    fontWeight: 'bold',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    padding: '6px 12px',
+    borderRadius: 4
+  },
+  logout: {
+    backgroundColor: '#ef4444',
+    color: 'white',
+    transition: 'background-color 0.2s ease'
   },
   main: {
     padding: '20px'
